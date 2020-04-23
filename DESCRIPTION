@@ -1,12 +1,14 @@
 Package: multinomss
 Type: Package
-Title: What the Package Does in One 'Title Case' Line
+Title: Calculation of the Multinomial Space-Time Scan Statistic
 Version: 1.0
-Date: 2020-04-12
+Date: 2020-04-22
 Author: Dillon Corrigan
 Maintainer: Dillon Corrigan <corri104@umn.edu>
-Description: One paragraph description of what the
-      package does as one or more full sentences.
+Description: More details about what the package does. See
+            <http://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file> for details on
+            how to write this part.
 License: GPL (>= 2)
-Imports: Rcpp (>= 1.0.3)
+Imports: Rcpp (>= 1.0.4.6), RcppArmadillo, RcppProgress, data.table
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
+RoxygenNote: 7.1.0
