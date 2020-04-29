@@ -1,4 +1,6 @@
 useDynLib(multinomss, .registration=TRUE)
 importFrom(Rcpp, evalCpp)
 import(data.table)
+import(leaflet)
+import(sf)
 exportPattern("^[[:alpha:]]+")

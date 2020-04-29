@@ -5,10 +5,10 @@
 #' from 1 to pre-specified k points. These represent circular zones in space.
 #' 
 #' @param locs An n x 2 matrix of centroid point coordinates in latitude/longitude
-#' @param k An integer specifying the maximum number of nearest neighbors to include in spatial zones
+#' @param spatial_prop A float/decimal specifying the maximum proportion of the total population to be included in the scanning windows
 #' @export
-spatial_zones <- function(locs, k) {
-    .Call(`_multinomss_spatial_zones`, locs, k)
+spatial_zones <- function(locs, spatial_prop) {
+    .Call(`_multinomss_spatial_zones`, locs, spatial_prop)
 }
 
 #' Takes spatial zone input and calculates the temporal zones. For each circular
@@ -25,8 +25,8 @@ temporal_zones <- function(zones, dates, time_prop, study_length, retrospective)
 
 #' Performs calculation of both spatial and temporal zones in one step. The arguments are the same as specified in \code{spatial_zones()} and \code{temporal_zones()}
 #' @export
-zones <- function(locs, k, dates, time_prop, study_length, retrospective) {
-    .Call(`_multinomss_zones`, locs, k, dates, time_prop, study_length, retrospective)
+zones <- function(locs, spatial_prop, dates, time_prop, study_length, retrospective) {
+    .Call(`_multinomss_zones`, locs, spatial_prop, dates, time_prop, study_length, retrospective)
 }
 
 multinom_scan <- function(zones, group, levels) {

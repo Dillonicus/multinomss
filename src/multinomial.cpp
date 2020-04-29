@@ -110,11 +110,12 @@ arma::vec counter(const arma::vec& group, const arma::vec& levels){
 //' from 1 to pre-specified k points. These represent circular zones in space.
 //' 
 //' @param locs An n x 2 matrix of centroid point coordinates in latitude/longitude
-//' @param k An integer specifying the maximum number of nearest neighbors to include in spatial zones
+//' @param spatial_prop A float/decimal specifying the maximum proportion of the total population to be included in the scanning windows
 //' @export
 // [[Rcpp::export]]
-List spatial_zones(const NumericMatrix& locs, const int& k) {
+List spatial_zones(const NumericMatrix& locs, const float& spatial_prop) {
   int n = locs.nrow();
+  int k = floor(n * spatial_prop);
   List spatial_zones(n*k);
   
   Rcout << "Starting Spatial Zone Calculation..." << endl;
@@ -183,10 +184,10 @@ List temporal_zones(const List& zones, const IntegerVector& dates,
 //' Performs calculation of both spatial and temporal zones in one step. The arguments are the same as specified in \code{spatial_zones()} and \code{temporal_zones()}
 //' @export
 // [[Rcpp::export]]
-List zones(const NumericMatrix& locs, const int& k, const IntegerVector& dates,
+List zones(const NumericMatrix& locs, const float& spatial_prop, const IntegerVector& dates,
            const float& time_prop, const int& study_length, const bool& retrospective){
   
-  List spatialzones = spatial_zones(locs, k);
+  List spatialzones = spatial_zones(locs, spatial_prop);
   List finalzones = temporal_zones(spatialzones, dates, time_prop, study_length, retrospective);
   
   return finalzones;
@@ -233,7 +234,7 @@ arma::mat multinom_stat(const arma::mat& in_zone, const arma::vec& totals,
 }
 
 // [[Rcpp::export]]
-arma::vec multinom_scan(const List& zones, const arma::vec& group, const arma::vec& levels){
+double multinom_scan(const List& zones, const arma::vec& group, const arma::vec& levels){
   int n = zones.size();
   List tot = multinom_stat_null(group, levels)  ;
   arma::vec out(n, arma::fill::zeros);
@@ -261,7 +262,10 @@ arma::vec multinom_scan(const List& zones, const arma::vec& group, const arma::v
       out[i] = maximum_stat;
     }
   }
-  return out;
+  
+  arma::uword out_max = out.index_max();
+  
+  return out(out_max);
 }
 
 //' Calculates the most likely cluster for each centroid point by calculating the test statistic for all scanning windows
@@ -339,8 +343,7 @@ arma::vec multinom_permutation(const List& zones, const arma::vec& group, const 
   for(int i = 0; i < n_perm; i++){
     Rcout << "Monte Carlo Permutation: " << i << "/" << n_perm << endl;
     arma::vec perm_group = arma::shuffle(group);
-    arma::vec perm_stat = multinom_scan(zones, perm_group, levels);
-    LLs.row(i) = arma::max(perm_stat);
+    LLs.row(i) = multinom_scan(zones, perm_group, levels);
   }
   return LLs;
 }

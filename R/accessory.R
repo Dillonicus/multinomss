@@ -21,22 +21,38 @@ time_intervals <- function(date, agg_unit = c('days', 'weeks', 'months', 'years'
 #' @param perm_p Permutation p-values produced by the \code{multinom_permutation} function
 #' @param ids A vector that corresponds to the ID of each observation
 #' @export
-results <- function(mlcs, perm_p, ids){
+results <- function (mlcs, perm_p = NULL, ids) 
+{
   mlcs[[1]] <- data.table::data.table(mlcs[[1]])
-  data.table::setnames(mlcs[[1]], 
-                       old = names(mlcs[[1]]), 
-                       new = c("Centroid", "Time Lower", "Time Upper", "LR Stat"))
+  data.table::setnames(mlcs[[1]], old = names(mlcs[[1]]), new = c("Centroid", 
+                                                                  "Time Lower", 
+                                                                  "Time Upper", 
+                                                                  "LR Stat"))
   
-  ps <- data.table::data.table(multinomss::p_val(unique(mlcs[[1]][["LR Stat"]]), perm_p))
-  data.table::setnames(ps, old = names(ps), new = c("LR Stat", "p-value"))
   
-  mlcs[[1]] <- data.table::merge.data.table(mlcs[[1]], ps, all = T, sort = F)[, c(2, 3, 4, 1, 5)]
+  if(!is.null(perm_p)){
+    ps <- data.table::data.table(multinomss::p_val(unique(mlcs[[1]][["LR Stat"]]), 
+                                                   perm_p))
+    
+    data.table::setnames(ps, old = names(ps), new = c("LR Stat", 
+                                                      "p-value"))
+    
+    mlcs[[1]] <- data.table::merge.data.table(mlcs[[1]], ps, 
+                                              all = T, sort = F)[, c(2, 3, 4, 1, 5)]
+    
+    mlcs <- purrr::reduce(mlcs, cbind)
+  }
   
-  mlcs <- purrr::reduce(mlcs, cbind)
-  mlcs <- mlcs[order(`LR Stat`, decreasing = T)][, .SD[1], by = .(Centroid)]
-  setnames(mlcs, old = c("elt"), new = c("IDs"))
-  mlcs[, Centroid := ids[Centroid]]
+  else{
+    mlcs[[1]] <- mlcs[[1]][, c(2, 3, 4, 1)]
+    mlcs <- purrr::reduce(mlcs, cbind)
+  }
   
+  mlcs <- mlcs[order(`LR Stat`, decreasing = T)][, .SD[1], 
+                                                 by = .(Centroid)]
+  data.table::setnames(mlcs, old = c("elt"), new = c("IDs"))
+  mlcs[, `:=`(Centroid, ids[Centroid])]
   mlcs[]
-
 }
+
+

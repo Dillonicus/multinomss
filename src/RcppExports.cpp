@@ -7,14 +7,14 @@
 using namespace Rcpp;
 
 // spatial_zones
-List spatial_zones(const NumericMatrix& locs, const int& k);
-RcppExport SEXP _multinomss_spatial_zones(SEXP locsSEXP, SEXP kSEXP) {
+List spatial_zones(const NumericMatrix& locs, const float& spatial_prop);
+RcppExport SEXP _multinomss_spatial_zones(SEXP locsSEXP, SEXP spatial_propSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericMatrix& >::type locs(locsSEXP);
-    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(spatial_zones(locs, k));
+    Rcpp::traits::input_parameter< const float& >::type spatial_prop(spatial_propSEXP);
+    rcpp_result_gen = Rcpp::wrap(spatial_zones(locs, spatial_prop));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -34,23 +34,23 @@ BEGIN_RCPP
 END_RCPP
 }
 // zones
-List zones(const NumericMatrix& locs, const int& k, const IntegerVector& dates, const float& time_prop, const int& study_length, const bool& retrospective);
-RcppExport SEXP _multinomss_zones(SEXP locsSEXP, SEXP kSEXP, SEXP datesSEXP, SEXP time_propSEXP, SEXP study_lengthSEXP, SEXP retrospectiveSEXP) {
+List zones(const NumericMatrix& locs, const float& spatial_prop, const IntegerVector& dates, const float& time_prop, const int& study_length, const bool& retrospective);
+RcppExport SEXP _multinomss_zones(SEXP locsSEXP, SEXP spatial_propSEXP, SEXP datesSEXP, SEXP time_propSEXP, SEXP study_lengthSEXP, SEXP retrospectiveSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericMatrix& >::type locs(locsSEXP);
-    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const float& >::type spatial_prop(spatial_propSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type dates(datesSEXP);
     Rcpp::traits::input_parameter< const float& >::type time_prop(time_propSEXP);
     Rcpp::traits::input_parameter< const int& >::type study_length(study_lengthSEXP);
     Rcpp::traits::input_parameter< const bool& >::type retrospective(retrospectiveSEXP);
-    rcpp_result_gen = Rcpp::wrap(zones(locs, k, dates, time_prop, study_length, retrospective));
+    rcpp_result_gen = Rcpp::wrap(zones(locs, spatial_prop, dates, time_prop, study_length, retrospective));
     return rcpp_result_gen;
 END_RCPP
 }
 // multinom_scan
-arma::vec multinom_scan(const List& zones, const arma::vec& group, const arma::vec& levels);
+double multinom_scan(const List& zones, const arma::vec& group, const arma::vec& levels);
 RcppExport SEXP _multinomss_multinom_scan(SEXP zonesSEXP, SEXP groupSEXP, SEXP levelsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
