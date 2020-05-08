@@ -4,7 +4,7 @@
 \alias{results}
 \title{Used to format results for output}
 \usage{
-results(mlcs, perm_p = NULL, ids, locs, non_overlapping = TRUE)
+results(mlcs, perm_p = NULL, ids)
 }
 \arguments{
 \item{mlcs}{A list produced by the \code{multinom_mlc} function}
@@ -12,8 +12,6 @@ results(mlcs, perm_p = NULL, ids, locs, non_overlapping = TRUE)
 \item{perm_p}{Permutation p-values produced by the \code{multinom_permutation} function}
 
 \item{ids}{A vector that corresponds to the ID of each observation}
-
-\item{locs}{A matrix of coordinates for each observation/centroid}
 }
 \description{
 Used to format results for output
