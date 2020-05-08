@@ -33,6 +33,15 @@ multinom_scan <- function(zones, group, levels) {
     .Call(`_multinomss_multinom_scan`, zones, group, levels)
 }
 
+#' Calculates the max distance between points within a cluster. This corresponds to the radius of the cluster
+#' 
+#' @param idlist A list of vectors containing the ID's in each cluster
+#' @param idvec A vector of ids that are associated with each observation
+#' @param locs A matrix of coordinates for each observation/centroid
+max_dist <- function(idlist, idvec, locs) {
+    .Call(`_multinomss_max_dist`, idlist, idvec, locs)
+}
+
 #' Calculates the most likely cluster for each centroid point by calculating the test statistic for all scanning windows
 #' 
 #' @param zones list of space-time scanning windows
@@ -61,5 +70,9 @@ multinom_permutation <- function(zones, group, levels, n_perm) {
 #' @export
 p_val <- function(stats, perm) {
     .Call(`_multinomss_p_val`, stats, perm)
+}
+
+non_overlap <- function(ids) {
+    .Call(`_multinomss_non_overlap`, ids)
 }
 
