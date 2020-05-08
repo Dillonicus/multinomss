@@ -62,6 +62,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// max_dist
+NumericVector max_dist(List idlist, arma::vec idvec, arma::mat locs);
+RcppExport SEXP _multinomss_max_dist(SEXP idlistSEXP, SEXP idvecSEXP, SEXP locsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type idlist(idlistSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type idvec(idvecSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type locs(locsSEXP);
+    rcpp_result_gen = Rcpp::wrap(max_dist(idlist, idvec, locs));
+    return rcpp_result_gen;
+END_RCPP
+}
 // multinom_mlc
 List multinom_mlc(const List& zones, const arma::vec& group, const arma::vec& id, const arma::vec& levels);
 RcppExport SEXP _multinomss_multinom_mlc(SEXP zonesSEXP, SEXP groupSEXP, SEXP idSEXP, SEXP levelsSEXP) {
@@ -102,15 +115,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// non_overlap
+arma::uvec non_overlap(List ids);
+RcppExport SEXP _multinomss_non_overlap(SEXP idsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type ids(idsSEXP);
+    rcpp_result_gen = Rcpp::wrap(non_overlap(ids));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_multinomss_spatial_zones", (DL_FUNC) &_multinomss_spatial_zones, 2},
     {"_multinomss_temporal_zones", (DL_FUNC) &_multinomss_temporal_zones, 5},
     {"_multinomss_zones", (DL_FUNC) &_multinomss_zones, 6},
     {"_multinomss_multinom_scan", (DL_FUNC) &_multinomss_multinom_scan, 3},
+    {"_multinomss_max_dist", (DL_FUNC) &_multinomss_max_dist, 3},
     {"_multinomss_multinom_mlc", (DL_FUNC) &_multinomss_multinom_mlc, 4},
     {"_multinomss_multinom_permutation", (DL_FUNC) &_multinomss_multinom_permutation, 4},
     {"_multinomss_p_val", (DL_FUNC) &_multinomss_p_val, 2},
+    {"_multinomss_non_overlap", (DL_FUNC) &_multinomss_non_overlap, 1},
     {NULL, NULL, 0}
 };
 

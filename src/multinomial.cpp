@@ -233,6 +233,7 @@ arma::mat multinom_stat(const arma::mat& in_zone, const arma::vec& totals,
   return LL1.each_col() - LL0;
 }
 
+
 // [[Rcpp::export]]
 double multinom_scan(const List& zones, const arma::vec& group, const arma::vec& levels){
   int n = zones.size();
@@ -266,6 +267,36 @@ double multinom_scan(const List& zones, const arma::vec& group, const arma::vec&
   arma::uword out_max = out.index_max();
   
   return out(out_max);
+}
+
+//' Calculates the max distance between points within a cluster. This corresponds to the radius of the cluster
+//' 
+//' @param idlist A list of vectors containing the ID's in each cluster
+//' @param idvec A vector of ids that are associated with each observation
+//' @param locs A matrix of coordinates for each observation/centroid
+// [[Rcpp::export]]
+NumericVector max_dist(List idlist, arma::vec idvec, arma::mat locs){
+  int n = idlist.size();
+  NumericVector out(n);
+  
+  for(int i = 0; i < n; i++){
+    arma::vec ids = idlist[i];
+    arma::uvec idc = arma::find(idvec == arma::as_scalar(ids.head(1)));
+    arma::uvec idf = arma::find(idvec == arma::as_scalar(ids.tail(1)));
+    arma::ivec idcv = arma::conv_to<arma::ivec>::from(idc);
+    arma::ivec idfv = arma::conv_to<arma::ivec>::from(idf);
+    
+    arma::rowvec idcr = locs.row(arma::as_scalar(idcv));
+    arma::rowvec idfr = locs.row(arma::as_scalar(idfv));
+    NumericVector loc1(idcr.begin(), idcr.end());
+    loc1.attr("dim") = Dimension(1, 2);
+    NumericVector loc2(idfr.begin(), idfr.end());
+    NumericMatrix loc3 = as<NumericMatrix>(loc1);
+    NumericVector rad = haversine_dist(loc3, loc2);
+    out[i] = as<double>(rad);
+  }
+  
+  return out / 1000;
 }
 
 //' Calculates the most likely cluster for each centroid point by calculating the test statistic for all scanning windows
@@ -377,3 +408,33 @@ arma::mat p_val(const arma::vec& stats, const arma::vec& perm){
   
   return out;
 }
+
+
+// [[Rcpp::export]]
+arma::uvec non_overlap(List ids){ 
+  int n = ids.size();
+  arma::ivec top = ids[0];
+  arma::ivec out(n, arma::fill::zeros);
+  int nvals = 0;
+
+  for(int i = 0; i < n; i++){
+    arma::ivec sub = ids[i];
+    nvals += sub.n_rows;
+  }
+  
+  arma::ivec seen(nvals, arma::fill::zeros);
+  int begin = 0;
+
+  for(int i = 0; i < n; i++){
+    arma::ivec compare = ids[i];
+    arma::ivec intersects = arma::intersect(compare, seen);
+    int length = compare.n_rows - 1;
+    seen.rows(begin, begin + length) = compare;
+    begin += length;
+    out(i) = intersects.n_rows;
+  }
+  
+  arma::uvec outs = arma::find( out ==  0 );
+  return outs;
+}
+
