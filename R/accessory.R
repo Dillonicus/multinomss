@@ -22,7 +22,7 @@ time_intervals <- function(date, agg_unit = c('days', 'weeks', 'months', 'years'
 #' @param ids A vector that corresponds to the ID of each observation
 #' @param locs A matrix of coordinates for each observation/centroid
 #' @export
-results2 <- function (mlcs, perm_p = NULL, ids, locs, non_overlapping = TRUE) {
+results <- function (mlcs, perm_p = NULL, ids, locs, non_overlapping = TRUE) {
   mlcs[[1]] <- data.table::data.table(mlcs[[1]])
   data.table::setnames(mlcs[[1]], old = names(mlcs[[1]]), new = c("Centroid", 
                                                                   "Time Lower", 
