@@ -4,7 +4,7 @@
 \alias{multinom_mlc}
 \title{Calculates the most likely cluster for each centroid point by calculating the test statistic for all scanning windows}
 \usage{
-multinom_mlc(zones, group, id, levels)
+multinom_mlc(zones, group, id)
 }
 \arguments{
 \item{zones}{list of space-time scanning windows}

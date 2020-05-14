@@ -4,7 +4,7 @@
 \alias{multinom_permutation}
 \title{Conducts the permutations needed for Monte Carlo hypothesis testing}
 \usage{
-multinom_permutation(zones, group, levels, n_perm)
+multinom_permutation(zones, group, n_perm)
 }
 \arguments{
 \item{zones}{list of space-time scanning windows}

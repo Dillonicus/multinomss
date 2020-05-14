@@ -5,7 +5,7 @@
 \title{Takes spatial zone input and calculates the temporal zones. For each circular
 zone in space, it effectively varies the height to create cylindrical zones.}
 \usage{
-temporal_zones(zones, dates, time_prop, study_length, retrospective)
+temporal_zones(zones, dates, time_prop, study_length)
 }
 \arguments{
 \item{zones}{A list of spatial zones produced by \code{spatial_zones()} function}
@@ -15,8 +15,6 @@ temporal_zones(zones, dates, time_prop, study_length, retrospective)
 \item{time_prop}{A float/decimal specifying the maximum proportion of the study length to consider as a cluster}
 
 \item{study_length}{An integer specifying the length of the study in days}
-
-\item{retrospective}{A logical T/F that specifies whether a retrospective analysis is desired. If \code{retrospective = F} the prospective zones will be calculated}
 }
 \description{
 Takes spatial zone input and calculates the temporal zones. For each circular

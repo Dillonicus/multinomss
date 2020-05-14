@@ -18,19 +18,14 @@ spatial_zones <- function(locs, spatial_prop) {
 #' @param dates A vector containing the dates associated with each observation. If time aggregation is used, this will correspond to time interval that each observation falls into
 #' @param time_prop A float/decimal specifying the maximum proportion of the study length to consider as a cluster
 #' @param study_length An integer specifying the length of the study in days
-#' @param retrospective A logical T/F that specifies whether a retrospective analysis is desired. If \code{retrospective = F} the prospective zones will be calculated
-temporal_zones <- function(zones, dates, time_prop, study_length, retrospective) {
-    .Call(`_multinomss_temporal_zones`, zones, dates, time_prop, study_length, retrospective)
+temporal_zones <- function(zones, dates, time_prop, study_length) {
+    .Call(`_multinomss_temporal_zones`, zones, dates, time_prop, study_length)
 }
 
 #' Performs calculation of both spatial and temporal zones in one step. The arguments are the same as specified in \code{spatial_zones()} and \code{temporal_zones()}
 #' @export
-zones <- function(locs, spatial_prop, dates, time_prop, study_length, retrospective) {
-    .Call(`_multinomss_zones`, locs, spatial_prop, dates, time_prop, study_length, retrospective)
-}
-
-multinom_scan <- function(zones, group, levels) {
-    .Call(`_multinomss_multinom_scan`, zones, group, levels)
+zones <- function(locs, spatial_prop, dates, time_prop, study_length) {
+    .Call(`_multinomss_zones`, locs, spatial_prop, dates, time_prop, study_length)
 }
 
 #' Calculates the max distance between points within a cluster. This corresponds to the radius of the cluster
@@ -49,8 +44,9 @@ max_dist <- function(idlist, idvec, locs) {
 #' @param id vector corresponding to the ID number of the observation
 #' @param levels vector denoting the unique levels of the group variable to which an observation can belong
 #' @export
-multinom_mlc <- function(zones, group, id, levels) {
-    .Call(`_multinomss_multinom_mlc`, zones, group, id, levels)
+#' 
+multinom_mlc <- function(zones, group, id) {
+    .Call(`_multinomss_multinom_mlc`, zones, group, id)
 }
 
 #' Conducts the permutations needed for Monte Carlo hypothesis testing
@@ -59,8 +55,8 @@ multinom_mlc <- function(zones, group, id, levels) {
 #' @param group vector corresponding to group membership of each observation
 #' @param n_perm number of Monte Carlo permutations to perform
 #' @export
-multinom_permutation <- function(zones, group, levels, n_perm) {
-    .Call(`_multinomss_multinom_permutation`, zones, group, levels, n_perm)
+multinom_permutation <- function(zones, group, n_perm) {
+    .Call(`_multinomss_multinom_permutation`, zones, group, n_perm)
 }
 
 #' Calculates the p-values from the Monte Carlo permutation-generated test statistics
@@ -72,6 +68,10 @@ p_val <- function(stats, perm) {
     .Call(`_multinomss_p_val`, stats, perm)
 }
 
+#' Gives the indices of the non-overlapping scanning windows.
+#' 
+#' @param ids A list of vectors containing the ID numbers associated with the observations in each cluster
+#' @export
 non_overlap <- function(ids) {
     .Call(`_multinomss_non_overlap`, ids)
 }

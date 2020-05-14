@@ -19,8 +19,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // temporal_zones
-List temporal_zones(const List& zones, const IntegerVector& dates, const float& time_prop, const int& study_length, const bool& retrospective);
-RcppExport SEXP _multinomss_temporal_zones(SEXP zonesSEXP, SEXP datesSEXP, SEXP time_propSEXP, SEXP study_lengthSEXP, SEXP retrospectiveSEXP) {
+List temporal_zones(const List& zones, const IntegerVector& dates, const float& time_prop, const int& study_length);
+RcppExport SEXP _multinomss_temporal_zones(SEXP zonesSEXP, SEXP datesSEXP, SEXP time_propSEXP, SEXP study_lengthSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -28,14 +28,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const IntegerVector& >::type dates(datesSEXP);
     Rcpp::traits::input_parameter< const float& >::type time_prop(time_propSEXP);
     Rcpp::traits::input_parameter< const int& >::type study_length(study_lengthSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type retrospective(retrospectiveSEXP);
-    rcpp_result_gen = Rcpp::wrap(temporal_zones(zones, dates, time_prop, study_length, retrospective));
+    rcpp_result_gen = Rcpp::wrap(temporal_zones(zones, dates, time_prop, study_length));
     return rcpp_result_gen;
 END_RCPP
 }
 // zones
-List zones(const NumericMatrix& locs, const float& spatial_prop, const IntegerVector& dates, const float& time_prop, const int& study_length, const bool& retrospective);
-RcppExport SEXP _multinomss_zones(SEXP locsSEXP, SEXP spatial_propSEXP, SEXP datesSEXP, SEXP time_propSEXP, SEXP study_lengthSEXP, SEXP retrospectiveSEXP) {
+List zones(const NumericMatrix& locs, const float& spatial_prop, const IntegerVector& dates, const float& time_prop, const int& study_length);
+RcppExport SEXP _multinomss_zones(SEXP locsSEXP, SEXP spatial_propSEXP, SEXP datesSEXP, SEXP time_propSEXP, SEXP study_lengthSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -44,21 +43,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const IntegerVector& >::type dates(datesSEXP);
     Rcpp::traits::input_parameter< const float& >::type time_prop(time_propSEXP);
     Rcpp::traits::input_parameter< const int& >::type study_length(study_lengthSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type retrospective(retrospectiveSEXP);
-    rcpp_result_gen = Rcpp::wrap(zones(locs, spatial_prop, dates, time_prop, study_length, retrospective));
-    return rcpp_result_gen;
-END_RCPP
-}
-// multinom_scan
-double multinom_scan(const List& zones, const arma::vec& group, const arma::vec& levels);
-RcppExport SEXP _multinomss_multinom_scan(SEXP zonesSEXP, SEXP groupSEXP, SEXP levelsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const List& >::type zones(zonesSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type group(groupSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type levels(levelsSEXP);
-    rcpp_result_gen = Rcpp::wrap(multinom_scan(zones, group, levels));
+    rcpp_result_gen = Rcpp::wrap(zones(locs, spatial_prop, dates, time_prop, study_length));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -76,30 +61,28 @@ BEGIN_RCPP
 END_RCPP
 }
 // multinom_mlc
-List multinom_mlc(const List& zones, const arma::vec& group, const arma::vec& id, const arma::vec& levels);
-RcppExport SEXP _multinomss_multinom_mlc(SEXP zonesSEXP, SEXP groupSEXP, SEXP idSEXP, SEXP levelsSEXP) {
+List multinom_mlc(const List& zones, const arma::vec& group, const arma::vec& id);
+RcppExport SEXP _multinomss_multinom_mlc(SEXP zonesSEXP, SEXP groupSEXP, SEXP idSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const List& >::type zones(zonesSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type group(groupSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type id(idSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type levels(levelsSEXP);
-    rcpp_result_gen = Rcpp::wrap(multinom_mlc(zones, group, id, levels));
+    rcpp_result_gen = Rcpp::wrap(multinom_mlc(zones, group, id));
     return rcpp_result_gen;
 END_RCPP
 }
 // multinom_permutation
-arma::vec multinom_permutation(const List& zones, const arma::vec& group, const arma::vec& levels, const int& n_perm);
-RcppExport SEXP _multinomss_multinom_permutation(SEXP zonesSEXP, SEXP groupSEXP, SEXP levelsSEXP, SEXP n_permSEXP) {
+arma::vec multinom_permutation(const List& zones, const arma::vec& group, const int& n_perm);
+RcppExport SEXP _multinomss_multinom_permutation(SEXP zonesSEXP, SEXP groupSEXP, SEXP n_permSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const List& >::type zones(zonesSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type group(groupSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type levels(levelsSEXP);
     Rcpp::traits::input_parameter< const int& >::type n_perm(n_permSEXP);
-    rcpp_result_gen = Rcpp::wrap(multinom_permutation(zones, group, levels, n_perm));
+    rcpp_result_gen = Rcpp::wrap(multinom_permutation(zones, group, n_perm));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -129,12 +112,11 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_multinomss_spatial_zones", (DL_FUNC) &_multinomss_spatial_zones, 2},
-    {"_multinomss_temporal_zones", (DL_FUNC) &_multinomss_temporal_zones, 5},
-    {"_multinomss_zones", (DL_FUNC) &_multinomss_zones, 6},
-    {"_multinomss_multinom_scan", (DL_FUNC) &_multinomss_multinom_scan, 3},
+    {"_multinomss_temporal_zones", (DL_FUNC) &_multinomss_temporal_zones, 4},
+    {"_multinomss_zones", (DL_FUNC) &_multinomss_zones, 5},
     {"_multinomss_max_dist", (DL_FUNC) &_multinomss_max_dist, 3},
-    {"_multinomss_multinom_mlc", (DL_FUNC) &_multinomss_multinom_mlc, 4},
-    {"_multinomss_multinom_permutation", (DL_FUNC) &_multinomss_multinom_permutation, 4},
+    {"_multinomss_multinom_mlc", (DL_FUNC) &_multinomss_multinom_mlc, 3},
+    {"_multinomss_multinom_permutation", (DL_FUNC) &_multinomss_multinom_permutation, 3},
     {"_multinomss_p_val", (DL_FUNC) &_multinomss_p_val, 2},
     {"_multinomss_non_overlap", (DL_FUNC) &_multinomss_non_overlap, 1},
     {NULL, NULL, 0}

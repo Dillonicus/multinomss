@@ -45,11 +45,12 @@ IntegerVector k_nearest(NumericVector v, int k) {
   
 }
 
+
 // Takes date interval, maximum proportion of study time allowed for each time
 // interval, and the total study time as inputs and returns matrix of lower/upper
 // bounds for the temporal windows
 
-IntegerMatrix time_windows(const IntegerVector& bounds, const float& time_prop, const int& study_length, const bool& retrospective){
+IntegerMatrix time_windows(const IntegerVector& bounds, const float& time_prop, const int& study_length){
   
   int m = bounds.size();
   float cutoff = time_prop * study_length;
@@ -66,26 +67,15 @@ IntegerMatrix time_windows(const IntegerVector& bounds, const float& time_prop, 
     }
   }
   
-  if(retrospective == TRUE){
-    LogicalVector filt = ( output_l < output_u ) & ((output_u - output_l) <= cutoff ) ;
+    LogicalVector filt = ( output_l < output_u ) & ((output_u - output_l) <= cutoff);
     IntegerVector output_l2 = output_l[ filt ];
     IntegerVector output_u2 = output_u[ filt ];
     IntegerMatrix output = cbind(output_l2, output_u2);
     return output;
-  }
-  
-  else{
-    LogicalVector filt = ( output_u == max(output_u) ) & ( output_l < output_u ) & ((output_u - output_l) <= cutoff ) ;
-    IntegerVector output_l2 = output_l[ filt ];
-    IntegerVector output_u2 = output_u[ filt ];
-    IntegerMatrix output = cbind(output_l2, output_u2);
-    return output;
-  }
   
 }
 
 // Similar to the "table" function in R, but requires pre-specified levels
-
 arma::vec counter(const arma::vec& group, const arma::vec& levels){
   arma::vec counts(levels.n_elem, arma::fill::zeros);
   
@@ -102,6 +92,28 @@ arma::vec counter(const arma::vec& group, const arma::vec& levels){
     counts(i) = count;
   }
   return counts;
+}
+
+// Used to flatten the nested list of scanning windows
+List flatten(List x){
+  int n = 0;
+  int nx = x.size();
+  
+  for(int i = 0; i < nx; ++i){
+    List sub = x[i];
+    n += sub.size();
+  }
+  
+  List out(n);
+  int m = 0;
+  
+  for(int i = 0; i < nx; ++i){
+    List sub = x[i];
+    std::copy(sub.begin(), sub.end(), out.begin() + m);
+    
+    m+= sub.size();
+  }
+  return out;
 }
 
 // Spatial and Space-Time Zone Functions ---------------------------------------
@@ -124,7 +136,7 @@ List spatial_zones(const NumericMatrix& locs, const float& spatial_prop) {
   for(int i = 0; i < n; ++i) {
     NumericVector fullzones = haversine_dist(locs, locs(i, _ ));
     IntegerVector nn = k_nearest(fullzones, k);
-    IntegerVector ni = rep(i+1, k);
+    IntegerVector ni = rep(i, k);
     IntegerMatrix nns = cbind(ni, nn);
     
     for(int j = 0; j < k; ++j) {
@@ -145,10 +157,9 @@ List spatial_zones(const NumericMatrix& locs, const float& spatial_prop) {
 //' @param dates A vector containing the dates associated with each observation. If time aggregation is used, this will correspond to time interval that each observation falls into
 //' @param time_prop A float/decimal specifying the maximum proportion of the study length to consider as a cluster
 //' @param study_length An integer specifying the length of the study in days
-//' @param retrospective A logical T/F that specifies whether a retrospective analysis is desired. If \code{retrospective = F} the prospective zones will be calculated
 // [[Rcpp::export]]
 List temporal_zones(const List& zones, const IntegerVector& dates,
-                    const float& time_prop, const int& study_length, const bool& retrospective){
+                    const float& time_prop, const int& study_length){
   int m = zones.size();
   List finalzones(m);
   
@@ -159,7 +170,7 @@ List temporal_zones(const List& zones, const IntegerVector& dates,
     IntegerVector subzone_ind = subzone(_,1);
     IntegerVector centroid_ind = subzone(_,0);
     IntegerVector subdate = dates[subzone_ind];
-    IntegerMatrix time_interval = time_windows(unique(subdate), time_prop, study_length, retrospective);
+    IntegerMatrix time_interval = time_windows(unique(subdate), time_prop, study_length);
     
     int n = time_interval.nrow();
     IntegerVector ns = seq(0, subdate.size() - 1);
@@ -185,19 +196,18 @@ List temporal_zones(const List& zones, const IntegerVector& dates,
 //' @export
 // [[Rcpp::export]]
 List zones(const NumericMatrix& locs, const float& spatial_prop, const IntegerVector& dates,
-           const float& time_prop, const int& study_length, const bool& retrospective){
+           const float& time_prop, const int& study_length){
   
   List spatialzones = spatial_zones(locs, spatial_prop);
-  List finalzones = temporal_zones(spatialzones, dates, time_prop, study_length, retrospective);
+  List finalzones = temporal_zones(spatialzones, dates, time_prop, study_length);
   
-  return finalzones;
+  return flatten(finalzones);
 }
 
 // Multinomial Scan Statistic Functions ----------------------------------------
 
 // multinom_stat_null is used to calculate the total counts and the L0 value for
 // the likelihood ratio statistic calculation
-
 List multinom_stat_null(const arma::vec& group, const arma::vec& levels){
   List null(2);
   
@@ -214,8 +224,7 @@ List multinom_stat_null(const arma::vec& group, const arma::vec& levels){
 
 // multinom_stat calculates the test statistic with a matrix of counts and the
 // total counts and L0 value (obtained via multinom_stat_null)
-
-arma::mat multinom_stat(const arma::mat& in_zone, const arma::vec& totals,
+arma::vec multinom_stat(const arma::mat& in_zone, const arma::vec& totals,
                         const arma::mat& LL0){
   
   arma::mat logs_in = in_zone % arma::log(in_zone.each_row() / arma::sum(in_zone, 0));
@@ -230,43 +239,22 @@ arma::mat multinom_stat(const arma::mat& in_zone, const arma::vec& totals,
   arma::mat LL1_out = arma::sum(logs_out, 0);
   arma::mat LL1 = LL1_in + LL1_out;
   
-  return LL1.each_col() - LL0;
+  arma::mat out = LL1.each_col() - LL0;
+  return arma::conv_to<arma::vec>::from(out);
 }
-
-
-// [[Rcpp::export]]
-double multinom_scan(const List& zones, const arma::vec& group, const arma::vec& levels){
+  
+arma::vec multinom_scan(const List& zones, const arma::vec&group, const arma::vec& levels){
   int n = zones.size();
-  List tot = multinom_stat_null(group, levels)  ;
+  List tot = multinom_stat_null(group, levels);
   arma::vec out(n, arma::fill::zeros);
+  arma::mat subout(levels.n_elem, n, arma::fill::zeros);
   
   for(int i = 0; i < n; i++){
-    List centroid = zones[i];
-    int m = centroid.size();
-    arma::mat subout(levels.n_elem, m, arma::fill::zeros);
-    
-    for(int j = 0; j < m; j++){
-      arma::umat group_index = centroid[j];
-      arma::vec group_sub = group.elem(group_index.col(3));
-      subout.col(j) = counter(group_sub, levels);
-    }
-    arma::mat test_stat = multinom_stat(subout, tot[0], tot[1]);
-    
-    if(test_stat.n_elem > 0){
-      arma::uword maximum_index = test_stat.index_max();
-      double maximum_stat = test_stat(maximum_index);
-      out[i] = maximum_stat;
-    }
-    
-    else{
-      double maximum_stat = 0;
-      out[i] = maximum_stat;
-    }
+    arma::umat centroid = zones[i];
+    arma::vec group_sub = group.elem(centroid.col(3));
+    subout.col(i) = counter(group_sub, levels);
   }
-  
-  arma::uword out_max = out.index_max();
-  
-  return out(out_max);
+  return multinom_stat(subout, tot[0], tot[1]);
 }
 
 //' Calculates the max distance between points within a cluster. This corresponds to the radius of the cluster
@@ -306,57 +294,28 @@ NumericVector max_dist(List idlist, arma::vec idvec, arma::mat locs){
 //' @param id vector corresponding to the ID number of the observation
 //' @param levels vector denoting the unique levels of the group variable to which an observation can belong
 //' @export
+//' 
 // [[Rcpp::export]]
-List multinom_mlc(const List& zones, const arma::vec& group, const arma::vec& id, const arma::vec& levels){
+List multinom_mlc(const List& zones, const arma::vec& group, const arma::vec& id){
+  const arma::vec& levels = group.elem(find_unique(group));
   int n = zones.size();
-  List tot = multinom_stat_null(group, levels)  ;
-  arma::mat mlc(n, 4, arma::fill::zeros);
-  List zone_ids(n);
+  arma::vec test_stat = multinom_scan(zones, group, levels);
+  arma::mat mlc(n, 3, arma::fill::zeros);
+  List ids_out(n);
   
   for(int i = 0; i < n; i++){
-    List centroid = zones[i];
-    int m = centroid.size();
-    arma::mat subout(levels.n_elem, m, arma::fill::zeros);
-    
-    for(int j = 0; j < m; j++){
-      arma::umat centroid_sub = centroid[j];
-      arma::vec group_sub = group.elem(centroid_sub.col(3));
-      subout.col(j) = counter(group_sub, levels);
-    }
-    
-    arma::mat test_stat = multinom_stat(subout, tot[0], tot[1]);
-    
-    if(test_stat.n_elem > 0){
-      arma::uword maximum_index = test_stat.index_max();
-      arma::mat max_zone = centroid[maximum_index];
-      arma::vec max_zone_ind = max_zone.col(3);
-      arma::rowvec sub_max_zone = max_zone(0, arma::span(0, 2));
-      arma::vec max_stat(1, arma::fill::zeros);
-      max_stat.fill(test_stat(maximum_index));
-      
-      arma::uvec max_zone_ind_u = arma::conv_to<arma::uvec>::from(max_zone_ind);
-      
-      sub_max_zone.insert_cols(3, max_stat);
-      mlc.row(i) = sub_max_zone;
-      arma::vec ids = id.rows(max_zone_ind_u);
-      
-      zone_ids[i] = ids;
-    }
-    
-    else{
-      arma::mat max_zone(1, 4, arma::fill::zeros);
-      mlc.row(i) = max_zone.row(0);
-      zone_ids[i] = max_zone.col(3);
-    }
-    
+    arma::mat sub = zones[i];
+    arma::rowvec row = sub(0, arma::span(0, 2));
+    mlc.row(i) = row;
+    arma::vec subid = sub.col(3);
+    arma::uvec subid_ind = arma::conv_to<arma::uvec>::from(subid);
+    arma::vec subid_out = id.elem(subid_ind);
+    ids_out[i] = subid_out;
   }
   
-  arma::uvec index_out = arma::find(mlc.col(3) > 0);
-  arma::mat mlc_out = mlc.rows(index_out);
-  zone_ids = zone_ids[as<IntegerVector>(wrap(index_out))];
+  mlc.insert_cols(3, test_stat);
   
-  List out = List::create(mlc_out, zone_ids);
-  
+  List out = List::create(mlc, ids_out);
   return out;
 }
 
@@ -367,14 +326,17 @@ List multinom_mlc(const List& zones, const arma::vec& group, const arma::vec& id
 //' @param n_perm number of Monte Carlo permutations to perform
 //' @export
 // [[Rcpp::export]]
-arma::vec multinom_permutation(const List& zones, const arma::vec& group, const arma::vec& levels, const int& n_perm){
+arma::vec multinom_permutation(const List& zones, const arma::vec& group, const int& n_perm){
   
   arma::vec LLs(n_perm + 1, arma::fill::zeros);
-  
+  const arma::vec& levels = group.elem( find_unique(group) );
+    
+  Progress p(n_perm);
   for(int i = 0; i < n_perm; i++){
-    Rcout << "Monte Carlo Permutation: " << i << "/" << n_perm << endl;
     arma::vec perm_group = arma::shuffle(group);
-    LLs.row(i) = multinom_scan(zones, perm_group, levels);
+    arma::vec perm_stat = multinom_scan(zones, perm_group, levels);
+    LLs.row(i) = perm_stat.max();
+    p.increment();
   }
   return LLs;
 }
@@ -409,7 +371,10 @@ arma::mat p_val(const arma::vec& stats, const arma::vec& perm){
   return out;
 }
 
-
+//' Gives the indices of the non-overlapping scanning windows.
+//' 
+//' @param ids A list of vectors containing the ID numbers associated with the observations in each cluster
+//' @export
 // [[Rcpp::export]]
 arma::uvec non_overlap(List ids){ 
   int n = ids.size();

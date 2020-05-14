@@ -4,7 +4,7 @@
 \alias{results}
 \title{Used to format results for output}
 \usage{
-results(mlcs, perm_p = NULL, ids, locs, non_overlapping = TRUE)
+results(mlcs, perm_p, ids, locs)
 }
 \arguments{
 \item{mlcs}{A list produced by the \code{multinom_mlc} function}

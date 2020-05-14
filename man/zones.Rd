@@ -4,7 +4,7 @@
 \alias{zones}
 \title{Performs calculation of both spatial and temporal zones in one step. The arguments are the same as specified in \code{spatial_zones()} and \code{temporal_zones()}}
 \usage{
-zones(locs, spatial_prop, dates, time_prop, study_length, retrospective)
+zones(locs, spatial_prop, dates, time_prop, study_length)
 }
 \description{
 Performs calculation of both spatial and temporal zones in one step. The arguments are the same as specified in \code{spatial_zones()} and \code{temporal_zones()}

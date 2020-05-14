@@ -4,14 +4,14 @@
 \alias{cluster_map}
 \title{Produces an interactive map to visualize the results of an analysis}
 \usage{
-cluster_map(results, significant_only = TRUE, alpha = 0.05)
+cluster_map(results, mlc_only = TRUE, map_layer = "CartoDB.Voyager")
 }
 \arguments{
 \item{results}{data.table containing the formatted results of the analysis.}
 
-\item{significant_only}{Boolean value. If true, only map the significant clusters.}
+\item{mlc_only}{Boolean value. If true, only map the most likely cluster.}
 
-\item{alpha}{Specifies the significance level for which to display clusters.}
+\item{map_layer}{Specifies the desired base tile layer for the map. Available layers can be previewed at https://leaflet-extras.github.io/leaflet-providers/preview/.}
 }
 \description{
 Produces an interactive map to visualize the results of an analysis
